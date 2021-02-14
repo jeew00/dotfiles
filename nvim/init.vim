@@ -53,12 +53,7 @@ hi NonText ctermbg=none guibg=none guifg=none ctermfg=none
 
 " Key bindings
 let mapleader=" "
-nnoremap <C-m> :so ~/.config/nvim/init.vim<CR>
-
-
-" Key bindings
-let mapleader=" "
-nnoremap <C-m> :so ~/.config/nvim/init.vim<CR>
+nnoremap <C-r> :so ~/.config/nvim/init.vim<CR>
 inoremap jj <ESC>
 nnoremap <silent> <C-p> :Telescope find_files<CR>
 
