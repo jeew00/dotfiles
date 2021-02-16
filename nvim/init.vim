@@ -1,4 +1,4 @@
-"" Some basic settings
+" Some basic settings
 filetype plugin indent on
 syntax on
 set wildmenu
@@ -27,35 +27,37 @@ set scrolloff=8
 set cmdheight=2
 set cursorline
 set nowrap
-set clipboard=unnamed
+set clipboard=unnamedplus
 
 "" Plugins
 call plug#begin('~/.config/nvim/plugged')
-" Files navigation with telescope
-Plug 'nvim-lua/popup.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
 " Statusline
-Plug 'vim-airline/vim-airline'
+Plug 'itchyny/lightline.vim'
+" fzf
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 " deoplete
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'deoplete-plugins/deoplete-jedi'
 " Comment Toggle
 Plug 'preservim/nerdcommenter'
+" NERDTree
+Plug 'preservim/nerdtree'
 " colorscheme
 Plug 'sainnhe/sonokai'
 call plug#end()
 
 " Activate colorscheme
 colorscheme sonokai
-hi Normal ctermbg=none guibg=none
-hi NonText ctermbg=none guibg=none guifg=none ctermfg=none
+hi Normal guibg=none ctermbg=none
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ }
 
 " Key bindings
 let mapleader=" "
 nnoremap <C-r> :so ~/.config/nvim/init.vim<CR>
 inoremap jj <ESC>
-nnoremap <silent> <C-p> :Telescope find_files<CR>
 
 " deoplete
 let g:deoplete#enable_at_startup = 1
@@ -67,3 +69,12 @@ let g:NERDSpaceDelims = 1
 let g:NERDCompactSexyComs = 1
 nnoremap <Leader>/ :call NERDComment('n', 'toggle')<CR>
 vnoremap <Leader>/ :call NERDComment('x', 'toggle')<CR>  
+
+" NERDTree configs
+nnoremap <Leader>t :NERDTreeToggle<CR>
+let g:NERDTreeMapCustomOpen = '<tab>'
+
+" fzf keybindings
+nnoremap <Leader>p :Files 
+nnoremap <Leader>ps :Files<CR>
+nnoremap <Leader>bf :Buffers<CR>
