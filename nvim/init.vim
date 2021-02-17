@@ -50,6 +50,8 @@ call plug#end()
 " Activate colorscheme
 colorscheme sonokai
 hi Normal guibg=none ctermbg=none
+" Fix italic for sonokai
+"highlight Comment cterm=italic
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ }

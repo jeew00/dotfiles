@@ -7,7 +7,7 @@ export LSCOLORS='gxfxcxdxbxegedabagacad'
 export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43'
 
 ## TERM
-export TERM=tmux-256color
+export TERM=xterm-256color
 
 ## locale
 export LANG=en_US.UTF-8
@@ -34,7 +34,8 @@ bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
 ## prompt (double quote is buggy with vcs_info btw)
-PROMPT='%F{120}%n@%m%F{white}:%F{219}%~ %F{white}%# '
+NEWLINE=$'\n'
+PROMPT="%F{120}%n@%m%F{white}:%F{219}%~%F{white}${NEWLINE}%# "
 RPROMPT='$GITSTATUS_PROMPT'
 
 ## alias
