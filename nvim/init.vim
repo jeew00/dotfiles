@@ -28,6 +28,7 @@ set cmdheight=2
 set cursorline
 set nowrap
 set clipboard=unnamedplus
+set updatetime=300
 
 "" Plugins
 call plug#begin('~/.config/nvim/plugged')
@@ -36,9 +37,8 @@ Plug 'itchyny/lightline.vim'
 " fzf
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-" deoplete
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'deoplete-plugins/deoplete-jedi'
+" CoC
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " Comment Toggle
 Plug 'preservim/nerdcommenter'
 " NERDTree
@@ -56,14 +56,14 @@ let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ }
 
+" disable preview fzf
+let g:fzf_preview_window = []
+
 " Key bindings
 let mapleader=" "
 nnoremap <C-r> :so ~/.config/nvim/init.vim<CR>
 inoremap jj <ESC>
-
-" deoplete
-let g:deoplete#enable_at_startup = 1
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+nnoremap <silent> <Leader><tab> :bnext<CR>
 
 " nerdcommenter configs
 let g:NERDCreateDefaultMappings = 0
@@ -77,6 +77,33 @@ nnoremap <Leader>t :NERDTreeToggle<CR>
 let g:NERDTreeMapCustomOpen = '<tab>'
 
 " fzf keybindings
-nnoremap <Leader>p :Files 
-nnoremap <Leader>ps :Files<CR>
-nnoremap <Leader>bf :Buffers<CR>
+nnoremap <Leader>p :Files<CR>
+nnoremap <Leader>b :Buffers<CR>
+nnoremap <Leader>bd :bd<CR>
+
+
+" Coc keybindings
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Make <CR> auto-select the first completion item and notify coc.nvim to
+" format on enter, <cr> could be remapped by other vim plugin
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
