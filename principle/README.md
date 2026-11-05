@@ -39,7 +39,6 @@ You do not need to remember these. A machine does them:
 - Branch protection: `main` changes only through a PR that passes CI
 - The pre-push hook: runs `check`
 - CI: runs `check` on the PR, on a clean machine and on each OS that the project supports
-- `/ship`: the merge steps
 - The release task: version, tag, clean build, publish
 
 ---
@@ -105,7 +104,7 @@ Run the same check on the same code only one time on the same machine. Measure b
 
 **Each item must fix a problem that you actually have.** If nothing breaks when you delete an item, delete it.
 
-**When an agent makes an error, fix the environment.** First try an automatic check. Write a text rule only when no check can catch the error. After a bad session, run `/retro`.
+**When an agent makes an error, fix the environment.** First try an automatic check. Write a text rule only when no check can catch the error.
 
 ## The loops
 
