@@ -7,6 +7,9 @@ set -u
 # shellcheck disable=SC2046
 unset $(git rev-parse --local-env-vars)
 
+# Each test gets the same OS on each machine. A test for another OS sets it again.
+DOTFILES_OS=linux; export DOTFILES_OS
+
 repo=$(cd "$(dirname "$0")/.." && pwd)
 rules="$repo/agents/AGENTS.md"
 pointer_text='@~/dotfiles/agents/AGENTS.md'
@@ -17,11 +20,13 @@ ok()   { echo "ok    $1"; }
 fail() { echo "FAIL  $1"; sed 's/^/      /' "$out"; failed=1; }
 homes=$(mktemp -d)
 new_home() { HOME=$(mktemp -d "$homes/home.XXXXXX"); export HOME; }
-install() { sh "$repo/install.sh" "$@" >"$out" 2>&1; }
+# No terminal on stdin: install.sh must not ask for a tmux color in a test.
+install() { sh "$repo/install.sh" "$@" </dev/null >"$out" 2>&1; }
 
 # 1. A new machine gets the Claude pointer and a copy of the rules for each Codex folder.
+#    A person in a terminal chooses a tmux color. --theme does the same without the prompt.
 new_home
-install
+install --theme blue
 if [ "$(cat "$HOME/.claude/CLAUDE.md")" = "$pointer_text" ]; then ok "claude pointer"; else fail "claude pointer"; fi
 for d in .codex .codex-account1 .codex-account2; do
   if cmp -s "$rules" "$HOME/$d/AGENTS.md"; then ok "codex copy in $d"; else fail "codex copy in $d"; fi
@@ -87,6 +92,78 @@ printf '[pull]\n\tff = false\n[windows]\n\tappendAtomically = false\n' > "$HOME/
 if install --check; then fail "check exits 1 on shadowed key"; else ok "check exits 1 on shadowed key"; fi
 if grep -q '^shadow  *~/.gitconfig pull.ff' "$out"; then ok "check names shadowed key"; else fail "check names shadowed key"; fi
 if grep -q 'windows.appendatomically' "$out"; then fail "machine key is not reported"; else ok "machine key is not reported"; fi
+
+# 9. On Linux and macOS, ~/.tmux.conf loads the shared tmux config.
+for DOTFILES_OS in linux macos; do
+  new_home
+  install
+  if [ "$(cat "$HOME/.tmux.conf")" = 'source-file ~/dotfiles/tmux/tmux.conf' ]; then ok "tmux pointer on $DOTFILES_OS"; else fail "tmux pointer on $DOTFILES_OS"; fi
+done
+
+# 10. tmux does not run on native Windows: no tmux files. The other lists still install.
+DOTFILES_OS=windows
+new_home
+install
+if [ ! -e "$HOME/.tmux.conf" ]; then ok "no tmux on windows"; else fail "no tmux on windows"; fi
+if [ -f "$HOME/.claude/CLAUDE.md" ]; then ok "other lists install on windows"; else fail "other lists install on windows"; fi
+if install --check && ! grep -q "tmux.conf" "$out"; then ok "check ignores tmux on windows"; else fail "check ignores tmux on windows"; fi
+install --theme teal
+if [ ! -e "$HOME/.config/tmux/local.conf" ]; then ok "no tmux theme on windows"; else fail "no tmux theme on windows"; fi
+DOTFILES_OS=linux
+
+# 10b. Without a terminal, install.sh does not ask for a color and writes no choice. --check names it.
+new_home
+install
+if [ ! -e "$HOME/.config/tmux/local.conf" ] && grep -q '^skip  *~/.config/tmux/local.conf' "$out"; then ok "no prompt without a terminal"; else fail "no prompt without a terminal"; fi
+if install --check; then fail "check exits 1 without a tmux color"; else ok "check exits 1 without a tmux color"; fi
+if grep -q '^missing  *~/.config/tmux/local.conf' "$out"; then ok "check names the missing tmux color"; else fail "check names the missing tmux color"; fi
+
+# 10c. --theme sets the color of this machine, and a second --theme changes it.
+install --theme teal
+if grep -q -x 'source-file ~/dotfiles/tmux/themes/teal.conf' "$HOME/.config/tmux/local.conf"; then ok "theme teal"; else fail "theme teal"; fi
+if install --check; then ok "check passes with a tmux color"; else fail "check passes with a tmux color"; fi
+install --theme gray
+if grep -q -x 'source-file ~/dotfiles/tmux/themes/gray.conf' "$HOME/.config/tmux/local.conf" &&
+   ! grep -q teal "$HOME/.config/tmux/local.conf"; then ok "theme changes to gray"; else fail "theme changes to gray"; fi
+install
+if grep -q gray "$HOME/.config/tmux/local.conf"; then ok "install keeps the theme"; else fail "install keeps the theme"; fi
+
+# 10d. An unknown theme is an error, and install.sh changes nothing.
+new_home
+for bad in red ../tmux/tmux "" "blue gray"; do
+  if install --theme "$bad"; then fail "theme '$bad' fails"; else ok "theme '$bad' fails"; fi
+done
+if [ -z "$(ls -A "$HOME")" ]; then ok "unknown theme changes nothing"; else fail "unknown theme changes nothing"; fi
+
+# 10e. There are 7 themes, and each sets the same three style options.
+n=0
+for f in "$repo"/tmux/themes/*.conf; do
+  n=$((n + 1))
+  keys=$(sed -n 's/^set[w]* -g \([a-z-]*\) .*/\1/p' "$f" | sort | tr '\n' ' ')
+  if [ "$keys" = "status-style window-status-current-style window-status-style " ]; then ok "theme ${f##*/}"; else echo "      keys: $keys" > "$out"; fail "theme ${f##*/}"; fi
+done
+if [ $n -eq 7 ]; then ok "7 themes"; else echo "      found: $n" > "$out"; fail "7 themes"; fi
+
+# 11. tmux loads the shared config without an error. This runs only where tmux is installed.
+if command -v tmux >/dev/null; then
+  new_home
+  install
+  mkdir -p "$HOME/dotfiles" && cp -R "$repo/tmux" "$HOME/dotfiles/"
+  sock="$HOME/tmux.sock"
+  if tmux -S "$sock" -f /dev/null new-session -d \; source-file "$HOME/.tmux.conf" >"$out" 2>&1 && [ ! -s "$out" ]; then
+    ok "tmux loads the config"
+  else
+    fail "tmux loads the config"
+  fi
+  tmux -S "$sock" show -gv status-style >"$out" 2>&1
+  if grep -q c98ba5 "$out"; then ok "tmux status bar is pink"; else fail "tmux status bar is pink"; fi
+  install --theme teal
+  tmux -S "$sock" source-file "$HOME/.tmux.conf" \; show -gv status-style >"$out" 2>&1
+  if grep -q -x '.*8bc5c9.*' "$out" && [ "$(wc -l < "$out")" -eq 1 ]; then ok "tmux status bar is teal"; else fail "tmux status bar is teal"; fi
+  tmux -S "$sock" kill-server 2>/dev/null
+else
+  echo "skip  tmux loads the config (tmux is not installed)"
+fi
 
 rm -rf "$out" "$homes"
 exit $failed

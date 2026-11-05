@@ -1,0 +1,4 @@
+# mode     target                       value
+# tmux does not run on native Windows. WSL is Linux.
+only       linux macos
+pointer    ~/.tmux.conf                 source-file ~/dotfiles/tmux/tmux.conf
