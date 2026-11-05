@@ -26,6 +26,7 @@ If the project has no `AGENTS.md`, follow the rules in `~/dotfiles/principle/pro
   - the merge danger: one-way or two-way door, and the blast radius,
   - what I must test by hand.
 - When you make an error that a machine could catch, propose an automatic check. Propose a text rule only when no check can catch it.
+- Tasks are quiet when they pass: a short summary, and the full error on a failure. When you set up a task, make it quiet. When a task prints many lines on a pass, propose a fix. Until then, cut its output (for example with `tail` or `grep`) before you read it.
 
 ## Permissions
 

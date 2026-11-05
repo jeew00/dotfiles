@@ -91,6 +91,8 @@ Read a part when its situation comes.
 
 Run the same check on the same code only one time on the same machine. Measure before you make a check faster.
 
+**Checks are quiet when they pass.** A passing check shows a short summary. A failing check shows the full error. An agent reads all of the output, so each extra line costs tokens on each run. Example: one `release` printed 300 lines (each test name, the dependency trees of warnings) and used about 10K tokens for no information.
+
 **If it is not in the repo, it does not exist.** The README, `AGENTS.md`, and ADRs give each agent and each teammate the same knowledge.
 
 **Some things never go into git:** secrets, private data, big files, and build output. For big files, git keeps a pointer (URL + hash), and a storage service keeps the bytes.
