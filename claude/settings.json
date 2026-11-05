@@ -30,7 +30,7 @@
   "enableArtifact": false,
   "statusLine": {
     "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh"
+    "command": "sh ~/dotfiles/claude/statusline.sh"
   },
   "enabledPlugins": {
     "skills@modular": true,

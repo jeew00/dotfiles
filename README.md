@@ -8,7 +8,7 @@ A new machine is ready after one clone and one command.
 | Folder | Content | Installed to |
 |---|---|---|
 | `agents/` | My personal rules for coding agents | Claude Code (pointer), Codex (copy) |
-| `claude/` | Claude Code settings, and the notification sound hook for each OS | `~/.claude/settings.json` (copy) |
+| `claude/` | Claude Code settings, the notification sound hook for each OS, and the status line script | `~/.claude/settings.json` (copy) |
 | `principle/` | How I build software with coding agents. `project/AGENTS.md` is the template for a new project. | — |
 | `git/` | Shared git config, the commit email for each forge, and the global ignore file. Machine keys (credential helpers) stay in `~/.gitconfig`. | `~/.config/git/config` (pointer) |
 | `tmux/` | Shared tmux config and 7 status bar colors. macOS and Linux only: tmux does not run on native Windows. The color of each machine is machine state in `~/.config/tmux/local.conf`. | `~/.tmux.conf` (pointer) |
@@ -17,7 +17,7 @@ A new machine is ready after one clone and one command.
 
 ## New machine
 
-1. Install git, [gh](https://cli.github.com) and [mise](https://mise.jdx.dev). On macOS and Linux, also install tmux: `mise use -g tmux@3.7c`.
+1. Install git, [gh](https://cli.github.com) and [mise](https://mise.jdx.dev). Install jq for the Claude Code status line: `mise use -g jq@1.8.2`. On macOS and Linux, also install tmux: `mise use -g tmux@3.7c`.
 2. `gh auth login`
 3. `git clone https://github.com/jeew00/dotfiles.git ~/dotfiles`
 4. `cd ~/dotfiles && mise trust && mise install && sh install.sh` (on Windows, use Git Bash). On macOS and Linux, it asks for the tmux status bar color of this machine.
