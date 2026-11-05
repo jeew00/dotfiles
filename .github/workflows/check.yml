@@ -1,0 +1,35 @@
+# Run the check on each OS. This repo makes my machines behave the same on Windows,
+# macOS and Linux, but before this, the check ran only on my Windows machine.
+name: check
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        # On Windows, this is Git Bash: install.sh and the tests need sh.
+        shell: bash
+    env:
+      # Also install the global tools (jq, and tmux on macOS and Linux), as a new machine does.
+      MISE_GLOBAL_CONFIG_FILE: ${{ github.workspace }}/mise/global.toml
+    steps:
+      # The actions are pinned to a commit: a tag can move to code that I did not review.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # gitleaks scans the full history.
+          fetch-depth: 0
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      # The tests run with an empty env, so a mise shim cannot find its version there.
+      # Put the tmux binary on PATH, so that the tmux test runs and is not skipped.
+      - name: Put tmux on PATH
+        if: runner.os != 'Windows'
+        run: dirname "$(mise which tmux)" >> "$GITHUB_PATH"
+      - run: mise run check
