@@ -20,6 +20,7 @@ If the project has no `AGENTS.md`, follow the rules in `~/dotfiles/principle/pro
 - When a task is done, tell me to start a new session (`/clear`), and name the next issue.
   When the same task continues but the session is long, tell me to `/compact`.
 - On a branch, commit each finished step after the check passes.
+- Commit messages, PRs and issues do not name AI tools.
 - At the end of each task, give:
   - a short summary,
   - evidence that it works (test output, before and after),

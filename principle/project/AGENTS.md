@@ -7,13 +7,15 @@ Scope: <pointer to the brief>. If a request is out of scope, say so before you s
 
 - Commands: `<task runner> --list`. A task is done when `<check>` passes.
 - Work on a branch. Push it, and open a PR: summary, evidence, merge danger, `Closes #<n>`.
-- When CI passes and the reviewer says "merge": squash-merge on the server, update `main`, and delete the local branch.
+- When CI passes and the reviewer says "merge": `gh pr merge --squash --subject "<PR title> (#<n>)" --body "<body>"`, update `main`, and delete the local branch.
 - Each behavior change comes with a test at a public interface. For a bug, first write a test that goes red.
 - For a new feature, propose the test seams and get approval before you write tests.
 - Take expected values from the spec or a known example.
 - Put I/O behind small interfaces, so tests use fakes and run offline.
 - While you work, run the tests of the changed part. The pre-push hook runs `<check>` one time at the end.
-- Commit messages tell why the change was made.
+- The PR title is the commit subject on `main`: `area: what the change does`. The area is the package or directory, in lowercase. No period at the end, 72 characters at most.
+- The squash commit body: none when the subject says all of it. If not: the problem, the change, the effect on users or callers, and what does not change. Wrap at 72 columns.
+- Commits on the branch are checkpoints. The squash merge removes their messages.
 
 ## Rules
 

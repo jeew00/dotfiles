@@ -71,7 +71,7 @@ Read a part when its situation comes.
 
 **`main` always works.** Each commit on `main` builds and passes the checks.
 
-**Commit when something works.** A commit is a checkpoint. The message tells why.
+**Commit when something works.** A commit on the branch is a checkpoint. The squash commit on `main` tells why: the subject is `area: what the change does`, and the body gives the problem, the change and its effect.
 
 **New idea during a task → issue.** If the idea changes "done" for the current task, update the spec and continue. If it is a new task, write the issue while the context is in the session, ship the current work, then start the issue in a new session. One topic in each session.
 
@@ -122,7 +122,9 @@ git push -u origin my-change       3. the pre-push hook runs check
 gh pr create                       4. body: summary, evidence, merge danger, "Closes #12"
 gh pr checks --watch               5. CI must pass
 (review)                           6. read the PR, then say "merge"
-gh pr merge --squash               7. the server merges and deletes the branch
+gh pr merge --squash \             7. the server merges and deletes the branch
+  --subject "<title> (#12)" \         (the PR title is the subject; the body says why)
+  --body "<why>"
 git switch main && git pull        8. update main
 git branch -D my-change            9. clean up
 ```

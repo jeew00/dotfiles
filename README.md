@@ -14,7 +14,7 @@ A new machine is ready after one clone and one command.
 | `tmux/` | Shared tmux config and 7 status bar colors. macOS and Linux only: tmux does not run on native Windows. The color of each machine is machine state in `~/.config/tmux/local.conf`. | `~/.tmux.conf` (pointer) |
 | `mise/` | Global tools with pinned versions: jq (for the Claude Code status line) on each OS, tmux on macOS and Linux. `~/dotfiles/mise.toml` has the tools of this repo only. | `~/.config/mise/config.toml` (copy) |
 | `claude/`, `codex/`, `git/`, `mise/`, `tmux/` | `files.list`: which file goes where | — |
-| `scripts/` | Repo tasks: `prune.sh` removes the worktrees of merged branches | — |
+| `scripts/` | Repo tasks: `prune.sh` removes the worktrees of merged branches, `check_subject.sh` checks a PR title | — |
 | `.github/` | CI: `mise run check` on Linux, macOS and Windows for each push | — |
 | `hooks/` | Git hooks of this repo: secret scan before commit, check before push, apply after pull | — |
 

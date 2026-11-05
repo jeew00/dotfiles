@@ -4,10 +4,26 @@ name: check
 on:
   push:
   workflow_dispatch:
+  # The server squash-merges, so the PR title becomes the commit subject on main.
+  # "edited": check the title again when it changes.
+  pull_request:
+    types: [opened, edited, reopened]
 permissions:
   contents: read
 jobs:
+  title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The title goes in through env, not into the script text: a title cannot run code.
+      - name: Check the PR title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: sh scripts/check_subject.sh "$TITLE"
   check:
+    # The push event already runs the full check for the PR's commits.
+    if: github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
