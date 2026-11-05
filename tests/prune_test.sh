@@ -18,6 +18,7 @@ fail() { echo "FAIL  $1"; sed 's/^/      /' "$HOME/out"; failed=1; }
 # The fake gh prints the head commits of the merged PRs from $HOME/prs.
 # If $HOME/prs does not exist, it fails, as gh does without a network.
 mkdir "$HOME/bin"
+# shellcheck disable=SC2016
 printf '#!/bin/sh\nexec cat "$HOME/prs"\n' > "$HOME/bin/gh"
 chmod +x "$HOME/bin/gh"
 PATH="$HOME/bin:$PATH"
