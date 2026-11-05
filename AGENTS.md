@@ -9,9 +9,11 @@ Out of scope: secrets, machine state, project config, and apps that are not dev 
 - Commands: `mise tasks`. A task is done when `mise run check` passes. On Windows, run it in Git Bash: only Git Bash has `sh`.
 - `~/dotfiles` is the live config and stays on `main`. Make each change in a worktree: `git worktree add ../dotfiles-<name> -b <name>`.
 - Push the branch and open a PR: summary, evidence, merge danger. Wait for CI on the 3 OSes.
-- When I say "merge": `gh pr merge --squash`, then `git pull` in `~/dotfiles` (the post-merge hook applies the change), then `mise run prune` removes the worktree and the branch.
+- When I say "merge": `gh pr merge --squash --subject "<PR title> (#<n>)" --body "<body>"`, then `git pull` in `~/dotfiles` (the post-merge hook applies the change), then `mise run prune` removes the worktree and the branch.
 - Each change to `install.sh` comes with a test in `tests/install_test.sh`.
-- Commit messages tell why the change was made.
+- The PR title is the commit subject on `main`: `area: what the change does`, for example `git: sort branches by date`. The area is the directory, in lowercase. No period at the end, 72 characters at most. CI checks the title with `scripts/check_subject.sh`.
+- The squash commit body: none when the subject says all of it. If not: the problem, the change, the effect on my machines, and what does not change. Wrap at 72 columns.
+- Commits on the branch are checkpoints. The squash merge removes their messages.
 
 ## Rules
 

@@ -16,6 +16,7 @@ run = [
   "sh tests/install_test.sh",
   "sh tests/prune_test.sh",
   "sh tests/claude_test.sh",
+  "sh tests/check_subject_test.sh",
 ]
 
 [tasks.prune]
