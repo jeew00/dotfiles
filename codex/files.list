@@ -1,0 +1,5 @@
+# mode     target                       value
+# codex1 and codex2 (PowerShell profile) set CODEX_HOME to the account folders.
+copy       ~/.codex/AGENTS.md           ../agents/AGENTS.md
+copy       ~/.codex-account1/AGENTS.md  ../agents/AGENTS.md
+copy       ~/.codex-account2/AGENTS.md  ../agents/AGENTS.md

@@ -1,0 +1,6 @@
+#!/bin/sh
+# Apply the new config after `git pull` or a merge, only in the live clone.
+# A merge in a worktree must not change the live config.
+top=$(cd "$(git rev-parse --show-toplevel)" && pwd)
+[ "$top" = "$HOME/dotfiles" ] || exit 0
+exec sh "$top/install.sh"

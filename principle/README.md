@@ -1,0 +1,197 @@
+# The Principles
+
+How to build software when coding agents write the code.
+The same rules apply to solo and team work, and to private and public projects.
+
+## The 4 rules
+
+```
+1. Spec first.       Each prompt says what to build, when it is done, and what is out of scope.
+2. Small branch.     One small slice on a branch. Merge to main only after a review.
+3. Machines check.   One check command, and a test for each change.
+4. Review, then merge.
+```
+
+## Scale the process to the task
+
+| Task | Process |
+|---|---|
+| **Tiny** (typo, rename, one line) | Prompt → branch → check → merge |
+| **Normal** (one feature, one bug) | Prompt with "Done when" and "Out of scope" → tests → check → review → merge |
+| **Large** (more than one session) | Spec + tickets → one new session for each ticket |
+| **Risky** (data, a release, a file format) | Normal, and add `/code-review` |
+
+Start a new session (`/clear`) for each task. This is the largest saving of tokens.
+
+## Review: 3 questions
+
+1. **Does it do what I asked, and nothing more?**
+2. **Did I see it work?** Test output, a screenshot, or I ran the app.
+3. **Can I undo it?** A two-way door (easy to undo) can merge quickly. A one-way door (data loss, a public release, a file format change) gets a slow review and `/code-review`.
+
+`check` and `/code-review` examine the rest.
+
+## Machines do the rest
+
+You do not need to remember these. A machine does them:
+
+- `check`: format, lint, tests, and the secret scan
+- A git hook: no commit on `main`, except a squash merge
+- The pre-push hook: runs `check`
+- `/ship`: the merge steps
+- The release task: version, tag, clean build, publish
+
+---
+
+# Reference
+
+Read a part when its situation comes.
+
+## Words
+
+| Word | What it is | Where it is kept |
+|---|---|---|
+| **Prompt** | What you type to the agent | Only in the session |
+| **Spec** | The content of a task: what to build, done when, out of scope | A prompt, an issue, or a file |
+| **Issue** | A saved task with a number | The git server, or `.scratch/` |
+| **Ticket** | An issue that is one slice of a larger spec | Same as an issue |
+| **Tracer bullet** | A thin, complete slice through all layers, testable by itself | — |
+| **Seam** | A public interface where tests examine the behavior | — |
+
+## Tasks without a git server
+
+- Put the task files in `.scratch/`, and add `.scratch/` to `.gitignore`.
+- The agent reads a task file only when you name it. Search tools skip git-ignored files by default.
+- Delete a task file when its task is done. The lasting knowledge goes into the code, the tests, the commit message, and an ADR if necessary.
+
+## The principles in detail
+
+**You own the work.** The agent writes the code. You say what you want, you set the checks, and you review the result.
+
+**`main` always works.** Each commit on `main` builds and passes the checks.
+
+**Commit when something works.** A commit is a checkpoint. The message tells why.
+
+**New idea during a task → issue.** Then continue the current task. One topic in each session.
+
+**Tests examine behavior at a seam.**
+- Each bug first gets a test that fails.
+- The expected value comes from the spec or a known example. A test that calculates the expected value the same way as the code always passes, so it shows nothing.
+- ML: use exact tests for the code around the model. Use evals with metrics and thresholds for the model output.
+
+**Check levels.**
+
+| When | What | Target time |
+|---|---|---|
+| While the agent works | Only the tests of the changed part | Seconds |
+| Before a merge | The full `check` | Less than 1–2 minutes |
+| Before a release, or on a schedule | Evals, tests with real models, slow scans | Any |
+
+Run the same check on the same code only one time. Measure before you make a check faster.
+
+**If it is not in the repo, it does not exist.** The README, `AGENTS.md`, and ADRs give each agent and each teammate the same knowledge.
+
+**Some things never go into git:** secrets, private data, big files, and build output. For big files, git keeps a pointer (URL + hash), and a storage service keeps the bytes.
+
+**The setup is reproducible.** Pin the tool versions, commit the lock files, and use one setup command.
+
+**A version, a tag, and a build are one unit.** Build from the tag on a clean machine: CI, or a clean clone. Each release gets a new version number.
+
+**Undo with `revert`, not `reset`.** `revert` adds a commit that undoes an old commit, and the history stays the same. For a bad release: revert, then make a new patch release.
+
+**Keep valuable things on the server.** API keys, prompts, and important logic stay on the server, not in the client.
+
+**Each item must fix a problem that you actually have.** If nothing breaks when you delete an item, delete it.
+
+**When an agent makes an error, fix the environment.** First try an automatic check. Write a text rule only when no check can catch the error. After a bad session, run `/retro`.
+
+## The loops
+
+### Change (local PR)
+
+```
+git switch -c my-change            1. branch
+(agent: seams → tests → code)      2. work
+mise run check                     3. check (this replaces CI)
+git diff main...my-change          4. review
+git switch main
+git merge --squash my-change       5. one commit on main
+git commit
+git push                           6. backup (the pre-push hook runs check)
+git branch -D my-change            7. clean up
+```
+
+- If `main` changed during the work: on the branch, do `git rebase main`, then do step 3 again.
+- If `main` did not change, the merge gives the same files as the branch. The check does not need to run again.
+- `-D` is necessary, because after a squash merge git does not know that the branch is merged.
+
+### Change (team PR)
+
+```
+git switch -c my-change
+(agent: seams → tests → code)
+mise run check
+git push -u origin my-change
+gh pr create                       (body: summary, evidence, merge danger, "Closes #12")
+(CI runs; a teammate reviews; the agent fixes)
+gh pr merge --squash --delete-branch
+git switch main && git pull
+```
+
+### Release
+
+```
+version bump → commit → tag → clean build → publish
+```
+
+### Fix a bad change
+
+```
+git revert <commit> → check → (if released) new patch release
+```
+
+## Solo and team
+
+| | Solo | Team |
+|---|---|---|
+| PR | Local PR | PR on the git server |
+| Reviewer | You | Another person |
+| CI | Optional. The local check replaces it. | Required |
+| Branch protection | Optional | Required: PR + CI must pass |
+| Issues | For work that you will not do now | For all planned work |
+
+When a teammate joins, add server PRs, CI as a gate, and branch protection.
+
+## Where each rule goes
+
+| Layer | File | Content |
+|---|---|---|
+| **Personal** | `agents/AGENTS.md` → Claude Code and Codex (`install.sh`) | About you: how you talk, how you work with agents, what needs your permission |
+| **Project** | `project/AGENTS.md` → each repo | About the code: the agreement that each person and each agent in the repo follows |
+| **Review** | `CODING_STANDARDS.md` in each repo | Judgment rules. Only the reviewer reads them. |
+| **Machine** | Git hooks, `check`, CI, branch protection | Rules that must always be true |
+
+### How to write the agent files
+
+- **Keep them short.** They load in each session. Put pointers, and the rules that the environment does not show.
+- **Write each rule one time.** Two copies of a rule will become different.
+- **Do not copy the environment.** If one command shows the information, write a pointer to it.
+- **Write positive instructions.** "Commit on a branch" works better than "Do not commit on `main`".
+- **Remove no-ops.** If the agent does a thing without the rule, delete the rule.
+- For a new project, copy `project/AGENTS.md`, fill in the `<...>` parts, and delete the parts that do not apply.
+
+## Git commands and when to use them
+
+| Command | Use it when |
+|---|---|
+| `switch -c` | You start a change. |
+| `diff main...branch` | You review the changes of a branch. |
+| `merge --squash` | You put a branch on `main` as one commit. |
+| `rebase main` | `main` changed and your branch must start from the new `main`. Only on your own branch. |
+| `revert` | You must undo a commit that is already on `main`. |
+| `worktree` | Two agents must work at the same time, each in its own folder. |
+| `stash` | You must put changes aside for a short time without a commit. |
+| `cherry-pick` | You need one commit from another branch, but not the rest. |
+| `bisect` | Something broke and you must find the commit that caused it. |
+
+You can skip for now: interactive rebase, submodules, git-flow.

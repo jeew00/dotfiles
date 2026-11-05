@@ -1,0 +1,4 @@
+#!/bin/sh
+# Stop a commit that contains a secret. This repo is public.
+command -v mise >/dev/null || { echo "pre-commit: install mise (see README.md)" >&2; exit 1; }
+exec mise exec -- gitleaks git --pre-commit --staged --redact --no-banner

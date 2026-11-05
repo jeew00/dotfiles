@@ -1,16 +1,34 @@
-# dotfiles  
+# dotfiles
 
-## Prerequisite  
+My development tools behave the same on each machine (Windows, macOS, Linux).
+A new machine is ready after one clone and one command.
 
-zsh & tmux  
+## Contents
 
-```
-apt update && apt-get update && apt-get install zsh tmux -y
-```
+| Folder | Content | Installed to |
+|---|---|---|
+| `agents/` | My personal rules for coding agents | Claude Code (pointer), Codex (copy) |
+| `principle/` | How I build software with coding agents. `project/AGENTS.md` is the template for a new project. | — |
+| `claude/`, `codex/` | `files.list`: which file goes where | — |
+| `hooks/` | Git hooks of this repo: secret scan, apply after pull | — |
 
-## Install  
+## New machine
 
-run `install.sh` (only work in debian based distros for now)
+1. Install git, [gh](https://cli.github.com) and [mise](https://mise.jdx.dev).
+2. `gh auth login`
+3. `git clone https://github.com/jeew00/dotfiles.git ~/dotfiles`
+4. `cd ~/dotfiles && mise trust && mise install && sh install.sh` (on Windows, use Git Bash)
+5. Log in to each agent: `claude` then `/login`; `codex login` (one time for each Codex account folder).
 
-## Note  
-install vim plugins yourself (run :PlugInstall in vim)
+## Daily use
+
+| Task | Command |
+|---|---|
+| Get the changes from another machine | `git -C ~/dotfiles pull` (the post-merge hook runs `install.sh`) |
+| Show drift between this repo and home | `sh ~/dotfiles/install.sh --check` |
+| Make a change | See `AGENTS.md` |
+
+## Never in this repo
+
+Secrets, tokens, keys, history, caches and machine state. The repo is public.
+The pre-commit hook and `mise run check` scan for secrets with gitleaks.
