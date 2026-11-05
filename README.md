@@ -8,6 +8,7 @@ A new machine is ready after one clone and one command.
 | Folder | Content | Installed to |
 |---|---|---|
 | `agents/` | My personal rules for coding agents | Claude Code (pointer), Codex (copy) |
+| `claude/` | Claude Code settings, and the notification sound hook for each OS | `~/.claude/settings.json` (copy) |
 | `principle/` | How I build software with coding agents. `project/AGENTS.md` is the template for a new project. | — |
 | `git/` | Shared git config, the commit email for each forge, and the global ignore file. Machine keys (credential helpers) stay in `~/.gitconfig`. | `~/.config/git/config` (pointer) |
 | `tmux/` | Shared tmux config and 7 status bar colors. macOS and Linux only: tmux does not run on native Windows. The color of each machine is machine state in `~/.config/tmux/local.conf`. | `~/.tmux.conf` (pointer) |

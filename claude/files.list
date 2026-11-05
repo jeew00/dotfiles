@@ -1,2 +1,4 @@
 # mode     target                       value
 pointer    ~/.claude/CLAUDE.md          @~/dotfiles/agents/AGENTS.md
+# settings.json has no include. Claude Code also writes to it (/model, /config), so --check shows those edits.
+copy       ~/.claude/settings.json      settings.json

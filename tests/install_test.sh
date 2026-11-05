@@ -31,6 +31,7 @@ if [ "$(cat "$HOME/.claude/CLAUDE.md")" = "$pointer_text" ]; then ok "claude poi
 for d in .codex .codex-account1 .codex-account2; do
   if cmp -s "$rules" "$HOME/$d/AGENTS.md"; then ok "codex copy in $d"; else fail "codex copy in $d"; fi
 done
+if cmp -s "$repo/claude/settings.json" "$HOME/.claude/settings.json"; then ok "claude settings copy"; else fail "claude settings copy"; fi
 if install --check; then ok "check passes after install"; else fail "check passes after install"; fi
 
 # 2. A second install changes nothing.

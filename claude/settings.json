@@ -1,0 +1,60 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Edit(**)"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "opus",
+  "skillOverrides": {
+    "diagnose": "off",
+    "hallmark": "off",
+    "caveman": "off",
+    "zoom-out": "off",
+    "setup-matt-pocock-skills": "off"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh ~/dotfiles/claude/notify.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "enableArtifact": false,
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "skills@modular": true,
+    "mattpocock-skills@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "modular": {
+      "source": {
+        "source": "github",
+        "repo": "modular/skills"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
+  "promptSuggestionEnabled": false,
+  "autoUpdatesChannel": "latest",
+  "tui": "fullscreen",
+  "theme": "dark",
+  "switchModelsOnFlag": false,
+  "agentPushNotifEnabled": true
+}
