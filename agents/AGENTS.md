@@ -24,4 +24,5 @@ If the project has no `AGENTS.md`, follow the rules in `~/dotfiles/principle/pro
 ## Permissions
 
 - Ask before an action that costs money, for example a paid API call. Give a cost estimate.
-- Do these actions only when I ask: merge to `main`, push, release, deploy, delete data.
+- Do these actions only when I ask: merge to `main`, push to `main`, release, deploy, delete data.
+- You can push a feature branch and open a PR without asking.
