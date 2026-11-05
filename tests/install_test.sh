@@ -2,6 +2,11 @@
 # Tests for install.sh. Each test runs it against a new, empty HOME.
 set -u
 
+# A git hook exports GIT_DIR. With it, `git init <dir>` changes that repo, not <dir>:
+# from a worktree hook, it set core.bare=true in the dotfiles repo. Unset the repo vars.
+# shellcheck disable=SC2046
+unset $(git rev-parse --local-env-vars)
+
 repo=$(cd "$(dirname "$0")/.." && pwd)
 rules="$repo/agents/AGENTS.md"
 pointer_text='@~/dotfiles/agents/AGENTS.md'
