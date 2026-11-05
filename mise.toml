@@ -11,4 +11,9 @@ run = [
   # Each shell script in the repo, also a new one before git add: none can be forgotten.
   "git ls-files -z --cached --others --exclude-standard '*.sh' 'hooks/*' | xargs -0 shellcheck",
   "sh tests/install_test.sh",
+  "sh tests/prune_test.sh",
 ]
+
+[tasks.prune]
+description = "Remove each worktree whose branch is in main, and delete the branch. Run after a squash merge."
+run = "sh scripts/prune.sh"
