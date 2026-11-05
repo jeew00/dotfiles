@@ -17,7 +17,8 @@ If the project has no `AGENTS.md`, follow the rules in `~/dotfiles/principle/pro
 - When a new idea comes up during a task, say if it changes "done" (propose the new spec)
   or is a new task (offer to write the issue now, ship the current work, then start the
   issue in a new session).
-- When a task is done, tell me to start a new session, and name the next issue.
+- When a task is done, tell me to start a new session (`/clear`), and name the next issue.
+  When the same task continues but the session is long, tell me to `/compact`.
 - On a branch, commit each finished step after the check passes.
 - At the end of each task, give:
   - a short summary,
