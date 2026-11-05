@@ -2,10 +2,16 @@
 # Tests for install.sh. Each test runs it against a new, empty HOME.
 set -u
 
-# A git hook exports GIT_DIR. With it, `git init <dir>` changes that repo, not <dir>:
-# from a worktree hook, it set core.bare=true in the dotfiles repo. Unset the repo vars.
-# shellcheck disable=SC2046
-unset $(git rev-parse --local-env-vars)
+# The tests must not see the state of this machine. Env vars changed the results:
+# GIT_DIR from a git hook (git init then changed the dotfiles repo), XDG_CONFIG_HOME
+# (git and mise then read config outside the test HOME). Run again with an empty env.
+# Keep only PATH, the temp folders, and the vars that Windows programs need.
+if [ -z "${DOTFILES_TEST_CLEAN:-}" ]; then
+  exec env -i DOTFILES_TEST_CLEAN=1 PATH="$PATH" \
+    ${TMPDIR+"TMPDIR=$TMPDIR"} ${TEMP+"TEMP=$TEMP"} ${TMP+"TMP=$TMP"} \
+    ${SYSTEMROOT+"SYSTEMROOT=$SYSTEMROOT"} ${WINDIR+"WINDIR=$WINDIR"} \
+    sh "$0" "$@"
+fi
 
 # Each test gets the same OS on each machine. A test for another OS sets it again.
 DOTFILES_OS=linux; export DOTFILES_OS
@@ -20,6 +26,8 @@ ok()   { echo "ok    $1"; }
 fail() { echo "FAIL  $1"; sed 's/^/      /' "$out"; failed=1; }
 homes=$(mktemp -d)
 new_home() { HOME=$(mktemp -d "$homes/home.XXXXXX"); export HOME; }
+# Also the steps before the first test must not read the real home.
+new_home
 # No terminal on stdin: install.sh must not ask for a tmux color in a test.
 install() { sh "$repo/install.sh" "$@" </dev/null >"$out" 2>&1; }
 
