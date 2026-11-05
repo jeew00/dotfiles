@@ -1,6 +1,7 @@
 [tools]
 gitleaks = "8.30.1"
 shellcheck = "0.11.0"
+"aqua:rhysd/actionlint" = "1.7.12"
 
 [tasks.check]
 description = "Secret scan, lint and tests. Run before each merge."
@@ -10,6 +11,8 @@ run = [
   "gitleaks git --redact --no-banner .",
   # Each shell script in the repo, also a new one before git add: none can be forgotten.
   "git ls-files -z --cached --others --exclude-standard '*.sh' 'hooks/*' | xargs -0 shellcheck",
+  # The GitHub workflow. An error there shows only after a push.
+  "actionlint",
   "sh tests/install_test.sh",
   "sh tests/prune_test.sh",
 ]
