@@ -2,16 +2,8 @@
 # Tests for install.sh. Each test runs it against a new, empty HOME.
 set -u
 
-# The tests must not see the state of this machine. Env vars changed the results:
-# GIT_DIR from a git hook (git init then changed the dotfiles repo), XDG_CONFIG_HOME
-# (git and mise then read config outside the test HOME). Run again with an empty env.
-# Keep only PATH, the temp folders, and the vars that Windows programs need.
-if [ -z "${DOTFILES_TEST_CLEAN:-}" ]; then
-  exec env -i DOTFILES_TEST_CLEAN=1 PATH="$PATH" \
-    ${TMPDIR+"TMPDIR=$TMPDIR"} ${TEMP+"TEMP=$TEMP"} ${TMP+"TMP=$TMP"} \
-    ${SYSTEMROOT+"SYSTEMROOT=$SYSTEMROOT"} ${WINDIR+"WINDIR=$WINDIR"} \
-    sh "$0" "$@"
-fi
+# shellcheck source=tests/clean_env.sh
+. "$(dirname "$0")/clean_env.sh"
 
 # Each test gets the same OS on each machine. A test for another OS sets it again.
 DOTFILES_OS=linux; export DOTFILES_OS
@@ -155,7 +147,11 @@ done
 if [ $n -eq 7 ]; then ok "7 themes"; else echo "      found: $n" > "$out"; fail "7 themes"; fi
 
 # 11. tmux loads the shared config without an error. This runs only where tmux is installed.
-if command -v tmux >/dev/null; then
+#     On native Windows, this test does not apply: it is not a skip, so CI does not fail.
+case $(uname -s) in MINGW* | MSYS* | CYGWIN*) on_windows=true ;; *) on_windows=false ;; esac
+if $on_windows; then
+  echo "n/a   tmux loads the config (tmux does not run on native Windows)"
+elif command -v tmux >/dev/null; then
   new_home
   install
   mkdir -p "$HOME/dotfiles" && cp -R "$repo/tmux" "$HOME/dotfiles/"

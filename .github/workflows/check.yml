@@ -28,8 +28,11 @@ jobs:
           fetch-depth: 0
       - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
       # The tests run with an empty env, so a mise shim cannot find its version there.
-      # Put the tmux binary on PATH, so that the tmux test runs and is not skipped.
-      - name: Put tmux on PATH
-        if: runner.os != 'Windows'
-        run: dirname "$(mise which tmux)" >> "$GITHUB_PATH"
-      - run: mise run check
+      # Put the global tools on PATH, so that the jq and tmux tests run and are not skipped.
+      - name: Put jq and tmux on PATH
+        run: |
+          dirname "$(mise which jq)" >> "$GITHUB_PATH"
+          if [ "$RUNNER_OS" != Windows ]; then dirname "$(mise which tmux)" >> "$GITHUB_PATH"; fi
+      # CI has each tool, so a skipped test is an error here.
+      - name: Check, with no skipped test
+        run: mise run check 2>&1 | tee check.log && ! grep '^skip' check.log

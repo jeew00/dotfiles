@@ -10,11 +10,12 @@ shell = "sh -c"
 run = [
   "gitleaks git --redact --no-banner .",
   # Each shell script in the repo, also a new one before git add: none can be forgotten.
-  "git ls-files -z --cached --others --exclude-standard '*.sh' 'hooks/*' | xargs -0 shellcheck",
+  "git ls-files -z --cached --others --exclude-standard '*.sh' 'hooks/*' | xargs -0 shellcheck -x",
   # The GitHub workflow. An error there shows only after a push.
   "actionlint",
   "sh tests/install_test.sh",
   "sh tests/prune_test.sh",
+  "sh tests/claude_test.sh",
 ]
 
 [tasks.prune]
