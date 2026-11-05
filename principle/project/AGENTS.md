@@ -6,12 +6,13 @@ Scope: <pointer to the brief>. If a request is out of scope, say so before you s
 ## Work loop
 
 - Commands: `<task runner> --list`. A task is done when `<check>` passes.
-- Work on a branch. After review, merge to `main` as one squash commit.
+- Work on a branch. Push it, and open a PR: summary, evidence, merge danger, `Closes #<n>`.
+- When CI passes and the reviewer says "merge": squash-merge on the server, update `main`, and delete the local branch.
 - Each behavior change comes with a test at a public interface. For a bug, first write a test that goes red.
 - For a new feature, propose the test seams and get approval before you write tests.
 - Take expected values from the spec or a known example.
 - Put I/O behind small interfaces, so tests use fakes and run offline.
-- While you work, run the tests of the changed part. Run `<check>` one time at the end.
+- While you work, run the tests of the changed part. The pre-push hook runs `<check>` one time at the end.
 - Commit messages tell why the change was made.
 
 ## Rules

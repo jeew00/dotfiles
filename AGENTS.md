@@ -8,7 +8,8 @@ Out of scope: secrets, machine state, project config, and apps that are not dev 
 
 - Commands: `mise tasks`. A task is done when `mise run check` passes. On Windows, run it in Git Bash: only Git Bash has `sh`.
 - `~/dotfiles` is the live config and stays on `main`. Make each change in a worktree: `git worktree add ../dotfiles-<name> -b <name>`.
-- After review, merge in `~/dotfiles` as one squash commit. The post-merge hook applies the change. Then `mise run prune` removes the worktree and the branch.
+- Push the branch and open a PR: summary, evidence, merge danger. Wait for CI on the 3 OSes.
+- When I say "merge": `gh pr merge --squash`, then `git pull` in `~/dotfiles` (the post-merge hook applies the change), then `mise run prune` removes the worktree and the branch.
 - Each change to `install.sh` comes with a test in `tests/install_test.sh`.
 - Commit messages tell why the change was made.
 
