@@ -4,8 +4,11 @@ shellcheck = "0.11.0"
 
 [tasks.check]
 description = "Secret scan, lint and tests. Run before each merge."
+# On Windows, mise runs a task with cmd. The pipe needs sh.
+shell = "sh -c"
 run = [
   "gitleaks git --redact --no-banner .",
-  "shellcheck install.sh hooks/pre-commit hooks/pre-push hooks/post-merge tests/install_test.sh claude/notify.sh claude/statusline.sh",
+  # Each shell script in the repo, also a new one before git add: none can be forgotten.
+  "git ls-files -z --cached --others --exclude-standard '*.sh' 'hooks/*' | xargs -0 shellcheck",
   "sh tests/install_test.sh",
 ]
