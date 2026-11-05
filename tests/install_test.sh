@@ -32,6 +32,7 @@ for d in .codex .codex-account1 .codex-account2; do
   if cmp -s "$rules" "$HOME/$d/AGENTS.md"; then ok "codex copy in $d"; else fail "codex copy in $d"; fi
 done
 if cmp -s "$repo/claude/settings.json" "$HOME/.claude/settings.json"; then ok "claude settings copy"; else fail "claude settings copy"; fi
+if cmp -s "$repo/mise/global.toml" "$HOME/.config/mise/config.toml"; then ok "mise global config copy"; else fail "mise global config copy"; fi
 if install --check; then ok "check passes after install"; else fail "check passes after install"; fi
 
 # 2. A second install changes nothing.
@@ -164,6 +165,22 @@ if command -v tmux >/dev/null; then
   tmux -S "$sock" kill-server 2>/dev/null
 else
   echo "skip  tmux loads the config (tmux is not installed)"
+fi
+
+# 12. mise reads the global pins: jq on each OS, tmux not on Windows.
+#     mise has no OS override, so this tests the OS of this machine. It runs only where mise is installed.
+#     The repo itself uses only mise.toml: mise reads a file like mise/config.toml as config of the repo.
+if command -v mise >/dev/null; then
+  (cd "$repo" && mise ls --local --no-header) >"$out" 2>&1
+  if grep -q '^gitleaks ' "$out" && ! grep -q '^jq ' "$out"; then ok "repo does not use the global pins"; else fail "repo does not use the global pins"; fi
+  (cd "$homes" && MISE_GLOBAL_CONFIG_FILE="$repo/mise/global.toml" mise ls --global --no-header) >"$out" 2>&1
+  if grep -q '^jq  *1\.8\.2 ' "$out"; then ok "mise reads the jq pin"; else fail "mise reads the jq pin"; fi
+  case $(uname -s) in
+    MINGW* | MSYS* | CYGWIN*) if grep -q '^tmux ' "$out"; then fail "mise skips tmux on windows"; else ok "mise skips tmux on windows"; fi ;;
+    *)                        if grep -q '^tmux  *3\.7c ' "$out"; then ok "mise reads the tmux pin"; else fail "mise reads the tmux pin"; fi ;;
+  esac
+else
+  echo "skip  mise global pins (mise is not installed)"
 fi
 
 rm -rf "$out" "$homes"

@@ -1,0 +1,4 @@
+# mode     target                       value
+# mise has no include for config.toml. ~/.config/mise is the global config folder on each OS.
+# The source is not named config.toml: mise reads mise/config.toml as config of this repo.
+copy       ~/.config/mise/config.toml   global.toml

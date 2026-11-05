@@ -1,0 +1,7 @@
+# Global tools: on PATH in each folder, not only in ~/dotfiles.
+# Pin a new version here, then run `mise install`. `mise use -g` edits the copy in home.
+[tools]
+# The Claude Code status line (claude/statusline.sh) reads its JSON input with jq.
+jq = "1.8.2"
+# tmux does not run on native Windows.
+tmux = { version = "3.7c", os = ["linux", "macos"] }
