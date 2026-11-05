@@ -6,7 +6,8 @@ The same rules apply to solo and team work, and to private and public projects.
 ## The 4 rules
 
 ```
-1. Spec first.       Each prompt says what to build, when it is done, and what is out of scope.
+1. Spec first.       Each task has what to build, when it is done, and what is out of scope.
+                     If the prompt does not say it, the agent proposes it and you say "ok".
 2. Small branch.     One small slice on a branch. Merge to main only after a review.
 3. Machines check.   One check command, and a test for each change.
 4. Review, then merge.
@@ -72,7 +73,7 @@ Read a part when its situation comes.
 
 **Commit when something works.** A commit is a checkpoint. The message tells why.
 
-**New idea during a task → issue.** Then continue the current task. One topic in each session.
+**New idea during a task → issue.** If the idea changes "done" for the current task, update the spec and continue. If it is a new task, write the issue while the context is in the session, ship the current work, then start the issue in a new session. One topic in each session.
 
 **Tests examine behavior at a seam.**
 - Each bug first gets a test that fails.
