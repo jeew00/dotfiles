@@ -36,8 +36,9 @@ Start a new session (`/clear`) for each task. This is the largest saving of toke
 You do not need to remember these. A machine does them:
 
 - `check`: format, lint, tests, and the secret scan
-- A git hook: no commit on `main`, except a squash merge
+- Branch protection: `main` changes only through a PR that passes CI
 - The pre-push hook: runs `check`
+- CI: runs `check` on the PR, on a clean machine and on each OS that the project supports
 - `/ship`: the merge steps
 - The release task: version, tag, clean build, publish
 
@@ -84,10 +85,11 @@ Read a part when its situation comes.
 | When | What | Target time |
 |---|---|---|
 | While the agent works | Only the tests of the changed part | Seconds |
-| Before a merge | The full `check` | Less than 1–2 minutes |
+| Before a push | The full `check` (the pre-push hook) | Less than 1–2 minutes |
+| On the PR | The full `check` in CI, on a clean machine | Less than 5 minutes |
 | Before a release, or on a schedule | Evals, tests with real models, slow scans | Any |
 
-Run the same check on the same code only one time. Measure before you make a check faster.
+Run the same check on the same code only one time on the same machine. Measure before you make a check faster.
 
 **If it is not in the repo, it does not exist.** The README, `AGENTS.md`, and ADRs give each agent and each teammate the same knowledge.
 
@@ -107,36 +109,41 @@ Run the same check on the same code only one time. Measure before you make a che
 
 ## The loops
 
-### Change (local PR)
+### Change
+
+One loop for solo and team work. Only the settings are different (see "Solo and team").
 
 ```
 git switch -c my-change            1. branch
-(agent: seams → tests → code)      2. work
+(agent: seams → tests → code)      2. work, and commit each step
+git push -u origin my-change       3. the pre-push hook runs check
+gh pr create                       4. body: summary, evidence, merge danger, "Closes #12"
+gh pr checks --watch               5. CI must pass
+(review)                           6. read the PR, then say "merge"
+gh pr merge --squash               7. the server merges and deletes the branch
+git switch main && git pull        8. update main
+git branch -D my-change            9. clean up
+```
+
+- "merge" means steps 7–9. The agent does them all, and asks nothing more.
+- If the PR has a conflict with `main`: on the branch, do `git rebase main` and `git push --force-with-lease`. Then CI runs again.
+- `-D` is necessary, because after a squash merge git does not know that the branch is merged. The PR on the server shows that it is merged.
+
+### Change without a git server
+
+```
+git switch -c my-change            1. branch
+(agent: seams → tests → code)      2. work, and commit each step
 mise run check                     3. check (this replaces CI)
-git diff main...my-change          4. review
+git diff main...my-change          4. review, then say "merge"
 git switch main
 git merge --squash my-change       5. one commit on main
 git commit
-git push                           6. backup (the pre-push hook runs check)
-git branch -D my-change            7. clean up
+git branch -D my-change            6. clean up
 ```
 
 - If `main` changed during the work: on the branch, do `git rebase main`, then do step 3 again.
-- If `main` did not change, the merge gives the same files as the branch. The check does not need to run again.
-- `-D` is necessary, because after a squash merge git does not know that the branch is merged.
-
-### Change (team PR)
-
-```
-git switch -c my-change
-(agent: seams → tests → code)
-mise run check
-git push -u origin my-change
-gh pr create                       (body: summary, evidence, merge danger, "Closes #12")
-(CI runs; a teammate reviews; the agent fixes)
-gh pr merge --squash --delete-branch
-git switch main && git pull
-```
+- Add a git server before a second person joins. Then use the loop above.
 
 ### Release
 
@@ -152,15 +159,19 @@ git revert <commit> → check → (if released) new patch release
 
 ## Solo and team
 
+The loop is the same. Only these settings are different:
+
 | | Solo | Team |
 |---|---|---|
-| PR | Local PR | PR on the git server |
-| Reviewer | You | Another person |
-| CI | Optional. The local check replaces it. | Required |
-| Branch protection | Optional | Required: PR + CI must pass |
+| Reviewer | You read the PR, then say "merge" | A teammate approves on the server |
+| Branch protection on `main` | PR + CI must pass | PR + CI + 1 approval |
 | Issues | For work that you will not do now | For all planned work |
 
-When a teammate joins, add server PRs, CI as a gate, and branch protection.
+Set up each repo one time: branch protection on `main`, only squash merge, and "delete the branch after the merge".
+When a teammate joins, change only the branch protection: add 1 approval.
+
+A private repo on GitHub Free cannot enforce branch protection. Then the agent must wait for CI before the merge.
+CI minutes are free for public repos. For private repos they are limited, and a macOS minute counts as 10.
 
 ## Where each rule goes
 
@@ -186,7 +197,7 @@ When a teammate joins, add server PRs, CI as a gate, and branch protection.
 |---|---|
 | `switch -c` | You start a change. |
 | `diff main...branch` | You review the changes of a branch. |
-| `merge --squash` | You put a branch on `main` as one commit. |
+| `merge --squash` | You put a branch on `main` as one commit, without a git server. |
 | `rebase main` | `main` changed and your branch must start from the new `main`. Only on your own branch. |
 | `revert` | You must undo a commit that is already on `main`. |
 | `worktree` | Two agents must work at the same time, each in its own folder. |
