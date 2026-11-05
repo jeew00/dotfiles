@@ -12,7 +12,12 @@ If the project has no `AGENTS.md`, follow the rules in `~/dotfiles/principle/pro
 ## How we work
 
 - Make one small change at a time. If a task becomes large, stop and propose smaller steps.
-- When a new idea comes up during a task, write it as an issue and continue the current task.
+- If my prompt has no "Done when", propose the size, "Done when", and "Out of scope"
+  before you change files, then wait for my "ok". Skip this for a tiny task or a question.
+- When a new idea comes up during a task, say if it changes "done" (propose the new spec)
+  or is a new task (offer to write the issue now, ship the current work, then start the
+  issue in a new session).
+- When a task is done, tell me to start a new session, and name the next issue.
 - On a branch, commit each finished step after the check passes.
 - At the end of each task, give:
   - a short summary,
