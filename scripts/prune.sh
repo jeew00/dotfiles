@@ -1,5 +1,6 @@
 #!/bin/sh
 # Remove each worktree whose branch is already in main, and delete the branch.
+# Also delete each branch without a worktree that is already in main.
 #
 # A squash merge makes `git branch --merged` useless, so this compares the content.
 # A branch is in main if one of these is true:
@@ -48,4 +49,19 @@ git worktree list --porcelain | while read -r key value; do
       fi
       ;;
   esac
+done
+
+# A branch without a worktree: the same test, but there is no worktree to remove.
+git for-each-ref --format='%(if)%(worktreepath)%(then)%(else)%(refname:lstrip=2)%(end)' refs/heads |
+while read -r b; do
+  if [ -z "$b" ] || [ "$b" = main ]; then
+    continue
+  elif [ "$(git rev-list --count "main..refs/heads/$b")" -eq 0 ]; then
+    echo "keep    $b (no commits)"
+  elif ! in_main "$b"; then
+    echo "keep    $b (not in main)"
+  else
+    git branch -q -D "$b"
+    echo "remove  $b (no worktree)"
+  fi
 done

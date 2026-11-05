@@ -30,6 +30,10 @@ work open o.txt open
 git worktree add -q "$HOME/fresh" -b fresh
 work dirty d.txt dirty; squash dirty; echo edit >> "$HOME/dirty/d.txt"
 work current c.txt current; squash current
+# Branches without a worktree.
+work bare-merged bm.txt bare-merged; squash bare-merged; git worktree remove "$HOME/bare-merged"
+work bare-open bo.txt bare-open; git worktree remove "$HOME/bare-open"
+git branch bare-fresh
 
 (cd "$HOME/current" && sh "$prune") > "$HOME/out" 2>&1
 
@@ -41,6 +45,10 @@ if kept open;    then ok "keeps a branch that is not in main"; else fail "keeps 
 if kept fresh;   then ok "keeps a branch with no commits"; else fail "keeps a branch with no commits"; fi
 if kept dirty;   then ok "keeps a worktree with uncommitted changes"; else fail "keeps a worktree with uncommitted changes"; fi
 if kept current; then ok "keeps the current worktree"; else fail "keeps the current worktree"; fi
+has() { git show-ref -q --verify "refs/heads/$1"; }
+if ! has bare-merged; then ok "deletes a merged branch without a worktree"; else fail "deletes a merged branch without a worktree"; fi
+if has bare-open;     then ok "keeps a branch without a worktree that is not in main"; else fail "keeps a branch without a worktree that is not in main"; fi
+if has bare-fresh;    then ok "keeps a branch without a worktree with no commits"; else fail "keeps a branch without a worktree with no commits"; fi
 
 cd / && rm -rf "$HOME"
 exit $failed
