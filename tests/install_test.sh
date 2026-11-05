@@ -173,7 +173,9 @@ fi
 if command -v mise >/dev/null; then
   (cd "$repo" && mise ls --local --no-header) >"$out" 2>&1
   if grep -q '^gitleaks ' "$out" && ! grep -q '^jq ' "$out"; then ok "repo does not use the global pins"; else fail "repo does not use the global pins"; fi
-  (cd "$homes" && MISE_GLOBAL_CONFIG_FILE="$repo/mise/global.toml" mise ls --global --no-header) >"$out" 2>&1
+  # mise also loads ~/.config/mise/config.toml, and then --global lists nothing. An empty MISE_CONFIG_DIR stops that.
+  mkdir -p "$homes/mise-config"
+  (cd "$homes" && MISE_CONFIG_DIR="$homes/mise-config" MISE_GLOBAL_CONFIG_FILE="$repo/mise/global.toml" mise ls --global --no-header) >"$out" 2>&1
   if grep -q '^jq  *1\.8\.2 ' "$out"; then ok "mise reads the jq pin"; else fail "mise reads the jq pin"; fi
   case $(uname -s) in
     MINGW* | MSYS* | CYGWIN*) if grep -q '^tmux ' "$out"; then fail "mise skips tmux on windows"; else ok "mise skips tmux on windows"; fi ;;
