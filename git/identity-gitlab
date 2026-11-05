@@ -1,0 +1,3 @@
+# GitLab (jeew) noreply. git/config includes this file for gitlab.com remotes.
+[user]
+	email = 8702903-jeew@users.noreply.gitlab.com

@@ -57,13 +57,30 @@ if install --bad; then fail "unknown argument fails"; else ok "unknown argument 
 new_home
 install
 if [ "$(cat "$HOME/.config/git/config")" = '[include] path = ~/dotfiles/git/config' ]; then ok "git pointer"; else fail "git pointer"; fi
-mkdir -p "$HOME/dotfiles/git" && cp "$repo/git/config" "$repo/git/ignore" "$HOME/dotfiles/git/"
+mkdir -p "$HOME/dotfiles/git" && cp "$repo"/git/* "$HOME/dotfiles/git/"
 if [ "$(cd "$HOME" && GIT_CONFIG_NOSYSTEM=1 git config --get pull.ff)" = only ]; then ok "git reads shared key"; else fail "git reads shared key"; fi
 
 # 7b. Each repo ignores OS junk through the global ignore file (core.excludesFile = ~/dotfiles/git/ignore).
 git init -q "$HOME/proj"
 if (cd "$HOME/proj" && GIT_CONFIG_NOSYSTEM=1 git check-ignore -q .DS_Store); then ok "global ignore file works"; else fail "global ignore file works"; fi
 if (cd "$HOME/proj" && GIT_CONFIG_NOSYSTEM=1 git check-ignore -q main.py); then fail "normal file is not ignored"; else ok "normal file is not ignored"; fi
+
+# 7c. The remote URL selects the commit identity. The name is the same on each forge.
+github='jeew <43456094+jeew00@users.noreply.github.com>'
+gitlab='jeew <8702903-jeew@users.noreply.gitlab.com>'
+for case in "none|$github" \
+            "https://github.com/jeew00/x.git|$github" \
+            "git@github.com:jeew00/x.git|$github" \
+            "https://gitlab.com/jeew/x.git|$gitlab" \
+            "ssh://git@gitlab.com/jeew/x.git|$gitlab" \
+            "git@gitlab.com:jeew/group/x.git|$gitlab"; do
+  url=${case%%|*} want=${case#*|}
+  r=$(mktemp -d "$homes/repo.XXXXXX")
+  git init -q "$r"
+  [ "$url" = none ] || git -C "$r" remote add origin "$url"
+  got="$(cd "$r" && GIT_CONFIG_NOSYSTEM=1 git config user.name) <$(cd "$r" && GIT_CONFIG_NOSYSTEM=1 git config user.email)>"
+  if [ "$got" = "$want" ]; then ok "identity for $url"; else echo "      got: $got" > "$out"; fail "identity for $url"; fi
+done
 
 # 8. A key in ~/.gitconfig that is also in git/config overrides the shared value: --check reports it.
 printf '[pull]\n\tff = false\n[windows]\n\tappendAtomically = false\n' > "$HOME/.gitconfig"

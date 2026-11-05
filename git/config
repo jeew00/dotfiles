@@ -2,8 +2,18 @@
 # Machine keys (credential helpers, OS options) stay in ~/.gitconfig.
 # Each key has the problem that it fixes.
 [user]
-	name = jeew00
+	# A forge connects a commit to an account by its email. The name is only for display.
+	name = jeew
+	# GitHub (jeew00) noreply: the default, also for a repo with no remote.
 	email = 43456094+jeew00@users.noreply.github.com
+# The remote URL selects the email of the other forges. Each forge needs 3 URL forms.
+# Paths are relative to this file.
+[includeIf "hasconfig:remote.*.url:https://gitlab.com/**"]
+	path = identity-gitlab
+[includeIf "hasconfig:remote.*.url:ssh://git@gitlab.com/**"]
+	path = identity-gitlab
+[includeIf "hasconfig:remote.*.url:git@gitlab.com:*/**"]
+	path = identity-gitlab
 [init]
 	defaultBranch = main
 [core]
