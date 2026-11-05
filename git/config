@@ -1,0 +1,44 @@
+# Shared git config for each machine. ~/.config/git/config points here.
+# Machine keys (credential helpers, OS options) stay in ~/.gitconfig.
+# Each key has the problem that it fixes.
+[user]
+	name = jeew00
+	email = 43456094+jeew00@users.noreply.github.com
+[init]
+	defaultBranch = main
+[core]
+	# Git for Windows sets autocrlf=true, macOS and Linux do not: keep LF on each OS.
+	autocrlf = input
+	# OS junk and personal agent files stay out of each repo.
+	excludesFile = ~/dotfiles/git/ignore
+[diff]
+	# Clearer diffs: fewer false matches on lines such as "}".
+	algorithm = histogram
+	# Show moved code as a move, not as a delete and an add.
+	colorMoved = zebra
+[merge]
+	# A conflict also shows the base version.
+	conflictStyle = zdiff3
+[rerere]
+	# Solve a conflict one time, also after the next rebase.
+	enabled = true
+[rebase]
+	# A rebase does not stop when the working tree has changes.
+	autoStash = true
+[pull]
+	ff = only
+[push]
+	followTags = true
+	# The first push of a branch does not need -u.
+	autoSetupRemote = true
+[fetch]
+	prune = true
+[branch]
+	# Newest branches first.
+	sort = -committerdate
+[tag]
+	# v1.10.0 comes after v1.9.0.
+	sort = version:refname
+[revert]
+	# A revert message names the commit by its subject.
+	reference = true

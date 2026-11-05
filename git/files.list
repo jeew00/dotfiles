@@ -1,0 +1,3 @@
+# mode     target                       value
+# Git reads ~/.config/git/config, then ~/.gitconfig. gh writes machine keys to ~/.gitconfig.
+pointer    ~/.config/git/config         [include] path = ~/dotfiles/git/config

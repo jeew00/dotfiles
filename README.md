@@ -9,7 +9,8 @@ A new machine is ready after one clone and one command.
 |---|---|---|
 | `agents/` | My personal rules for coding agents | Claude Code (pointer), Codex (copy) |
 | `principle/` | How I build software with coding agents. `project/AGENTS.md` is the template for a new project. | — |
-| `claude/`, `codex/` | `files.list`: which file goes where | — |
+| `git/` | Shared git config and global ignore file. Machine keys (credential helpers) stay in `~/.gitconfig`. | `~/.config/git/config` (pointer) |
+| `claude/`, `codex/`, `git/` | `files.list`: which file goes where | — |
 | `hooks/` | Git hooks of this repo: secret scan, apply after pull | — |
 
 ## New machine

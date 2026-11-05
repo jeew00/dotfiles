@@ -78,6 +78,18 @@ for list in "$repo"/*/files.list; do
   done < "$list"
 done
 
+# Git reads ~/.gitconfig after ~/.config/git/config, so a key in ~/.gitconfig
+# overrides the shared value. ~/.gitconfig must hold only machine keys.
+if [ -f "$HOME/.gitconfig" ]; then
+  shared=$(git config -f "$repo/git/config" --name-only --list)
+  for key in $(git config -f "$HOME/.gitconfig" --name-only --list | sort -u); do
+    if printf '%s\n' "$shared" | grep -q -x -F "$key"; then
+      echo "shadow   ~/.gitconfig $key (remove it: git/config has it)"
+      if $check; then drift=1; fi
+    fi
+  done
+fi
+
 # Git does not clone hooks. This makes git use the hooks in this repo.
 if [ "$(git -C "$repo" config core.hooksPath || true)" != hooks ]; then
   if $check; then

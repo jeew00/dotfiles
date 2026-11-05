@@ -1,0 +1,8 @@
+# Global ignore file for each repo (core.excludesFile in git/config).
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+# Personal agent files: they stay on this machine
+CLAUDE.local.md
+.claude/settings.local.json

@@ -48,5 +48,23 @@ if [ ! -e "$HOME/.claude/CLAUDE.md" ]; then ok "check changes nothing"; else fai
 # 6. An unknown argument is an error.
 if install --bad; then fail "unknown argument fails"; else ok "unknown argument fails"; fi
 
+# 7. Git gets a pointer to the shared config, and git reads the shared keys through it.
+new_home
+install
+if [ "$(cat "$HOME/.config/git/config")" = '[include] path = ~/dotfiles/git/config' ]; then ok "git pointer"; else fail "git pointer"; fi
+mkdir -p "$HOME/dotfiles/git" && cp "$repo/git/config" "$repo/git/ignore" "$HOME/dotfiles/git/"
+if [ "$(cd "$HOME" && GIT_CONFIG_NOSYSTEM=1 git config --get pull.ff)" = only ]; then ok "git reads shared key"; else fail "git reads shared key"; fi
+
+# 7b. Each repo ignores OS junk through the global ignore file (core.excludesFile = ~/dotfiles/git/ignore).
+git init -q "$HOME/proj"
+if (cd "$HOME/proj" && GIT_CONFIG_NOSYSTEM=1 git check-ignore -q .DS_Store); then ok "global ignore file works"; else fail "global ignore file works"; fi
+if (cd "$HOME/proj" && GIT_CONFIG_NOSYSTEM=1 git check-ignore -q main.py); then fail "normal file is not ignored"; else ok "normal file is not ignored"; fi
+
+# 8. A key in ~/.gitconfig that is also in git/config overrides the shared value: --check reports it.
+printf '[pull]\n\tff = false\n[windows]\n\tappendAtomically = false\n' > "$HOME/.gitconfig"
+if install --check; then fail "check exits 1 on shadowed key"; else ok "check exits 1 on shadowed key"; fi
+if grep -q '^shadow  *~/.gitconfig pull.ff' "$out"; then ok "check names shadowed key"; else fail "check names shadowed key"; fi
+if grep -q 'windows.appendatomically' "$out"; then fail "machine key is not reported"; else ok "machine key is not reported"; fi
+
 rm -rf "$out" "$homes"
 exit $failed
