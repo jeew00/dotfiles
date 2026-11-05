@@ -1,0 +1,4 @@
+#!/bin/sh
+# Run the full check before each push. If the check fails, git stops the push.
+command -v mise >/dev/null || { echo "pre-push: install mise (see README.md)" >&2; exit 1; }
+exec mise run check
