@@ -6,8 +6,9 @@ Scope: <pointer to the brief>. If a request is out of scope, say so before you s
 ## Work loop
 
 - Commands: `<task runner> --list`. A task is done when `<check>` passes.
+- Git server: <GitHub | GitLab (self-hosted), <URL>>. CLI: <gh | glab>.
 - Work on a branch. Push it, and open a PR: summary, evidence, merge danger, `Closes #<n>`.
-- When CI passes and the reviewer says "merge": `gh pr merge --squash --subject "<PR title> (#<n>)" --body "<body>"`, update `main`, and delete the local branch.
+- When CI passes and the reviewer says "merge": squash-merge with the server CLI, with the subject "<PR title> (<PR number>)" and the body below. Then update `main`, and delete the local branch.
 - Each behavior change comes with a test at a public interface. For a bug, first write a test that goes red.
 - For a new feature, propose the test seams and get approval before you write tests.
 - Take expected values from the spec or a known example.

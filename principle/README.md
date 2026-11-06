@@ -119,15 +119,22 @@ One loop for solo and team work. Only the settings are different (see "Solo and 
 git switch -c my-change            1. branch
 (agent: seams → tests → code)      2. work, and commit each step
 git push -u origin my-change       3. the pre-push hook runs check
-gh pr create                       4. body: summary, evidence, merge danger, "Closes #12"
-gh pr checks --watch               5. CI must pass
+(open a PR)                        4. body: summary, evidence, merge danger, "Closes #12"
+(watch CI)                         5. CI must pass
 (review)                           6. read the PR, then say "merge"
-gh pr merge --squash \             7. the server merges and deletes the branch
-  --subject "<title> (#12)" \         (the PR title is the subject; the body says why)
-  --body "<why>"
+(squash-merge)                     7. the server merges and deletes the branch
+                                      (the PR title is the subject; the body says why)
 git switch main && git pull        8. update main
 git branch -D my-change            9. clean up
 ```
+
+The server CLI does steps 4, 5 and 7. The `Git server:` line in the project's `AGENTS.md` names the CLI. GitLab calls a PR an "MR", and writes its number as `!12`, not `#12`.
+
+| Step | GitHub (`gh`) | GitLab (`glab`) |
+|---|---|---|
+| 4. open a PR | `gh pr create` | `glab mr create` |
+| 5. watch CI | `gh pr checks --watch` | `glab ci status --live` |
+| 7. squash-merge | `gh pr merge --squash --subject "<title> (#12)" --body "<why>"` | `glab mr merge --squash --remove-source-branch --squash-message "<title> (!12)"`, then a blank line and `<why>` in the same message |
 
 - "merge" means steps 7–9. The agent does them all, and asks nothing more.
 - If the PR has a conflict with `main`: on the branch, do `git rebase main` and `git push --force-with-lease`. Then CI runs again.
@@ -174,7 +181,7 @@ The loop is the same. Only these settings are different:
 Set up each repo one time: branch protection on `main`, only squash merge, and "delete the branch after the merge".
 When a teammate joins, change only the branch protection: add 1 approval.
 
-A private repo on GitHub Free cannot enforce branch protection. Then the agent must wait for CI before the merge.
+GitHub only: a private repo on GitHub Free cannot enforce branch protection. Then the agent must wait for CI before the merge.
 CI minutes are free for public repos. For private repos they are limited, and a macOS minute counts as 10.
 
 ## Where each rule goes
@@ -191,6 +198,7 @@ CI minutes are free for public repos. For private repos they are limited, and a 
 - **Keep them short.** They load in each session. Put pointers, and the rules that the environment does not show.
 - **Write each rule one time.** Two copies of a rule will become different.
 - **Do not copy the environment.** If one command shows the information, write a pointer to it.
+  The git server type is not in the environment: a URL such as `git.example.com` does not show it. So write it in the `Git server:` line.
 - **Write positive instructions.** "Commit on a branch" works better than "Do not commit on `main`".
 - **Remove no-ops.** If the agent does a thing without the rule, delete the rule.
 - For a new project, copy `project/AGENTS.md`, fill in the `<...>` parts, and delete the parts that do not apply.
