@@ -175,7 +175,9 @@ fi
 #     mise has no OS override, so this tests the OS of this machine. It runs only where mise is installed.
 #     The repo itself uses only mise.toml: mise reads a file like mise/config.toml as config of the repo.
 if command -v mise >/dev/null; then
-  (cd "$repo" && mise ls --local --no-header) >"$out" 2>&1
+  # mise also reads <dir>/.config/mise/config.toml in each parent of the repo. With the test HOME, the real
+  # global config is then an untrusted project config. The ceiling stops the search at the repo's parent.
+  (cd "$repo" && MISE_CEILING_PATHS="$(dirname "$repo")" mise ls --local --no-header) >"$out" 2>&1
   if grep -q '^gitleaks ' "$out" && ! grep -q '^jq ' "$out"; then ok "repo does not use the global pins"; else fail "repo does not use the global pins"; fi
   # mise also loads ~/.config/mise/config.toml, and then --global lists nothing. An empty MISE_CONFIG_DIR stops that.
   mkdir -p "$homes/mise-config"
