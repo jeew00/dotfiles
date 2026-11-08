@@ -159,8 +159,32 @@ git branch -D my-change            6. clean up
 ### Release
 
 ```
-version bump → commit → tag → clean build → publish
+<task runner> release X.Y.Z:  version bump → commit → tag → clean build → publish
 ```
+
+Answer 4 questions before the first code. Write the answers in the Release section of the project's `AGENTS.md`.
+
+1. **Artifact:** what does the build make?
+2. **Channel:** where does the user get it?
+3. **Install:** how does the user install it the first time?
+4. **Update:** how does the user get a new version?
+
+- **Use the channel that users already use for this type of product.** It gives install and update with no extra work. Write update code only when no channel can do the update.
+- **Make the update as easy as the channel allows:** automatic, then one command, then a manual download. Write down the choice and the reason.
+- **The first slice is a release.** In a new project, v0.1.0 goes through the full loop to a user's machine before the features. In an existing project, the current code goes through the full loop before the next change. Then each release is a small step that you already know.
+
+Examples:
+
+| Product | Artifact | Channel | Install | Update |
+|---|---|---|---|---|
+| CLI | Binary | GitHub Release, and a package manager (Homebrew, Scoop, mise) | `brew install <name>` | One command: `brew upgrade` |
+| Library | Package | npm, PyPI, crates.io | `npm i <name>` | Automatic: Renovate or Dependabot opens a PR in the user's repo |
+| Web app or service | Docker image | Registry, then deploy | Open the URL | Automatic: each release deploys |
+| Self-hosted service | Docker image | Registry | `docker compose up -d` | One command: `docker compose pull && docker compose up -d` |
+| Browser extension | Zip | Chrome Web Store, Firefox Add-ons | One click | Automatic: the browser updates it |
+| Browser extension, no store | Zip | GitHub Release | Unzip, then "Load unpacked" | Manual download |
+| Desktop app | Installer | GitHub Release, and an updater in the app (Tauri, Electron, Sparkle) | Run the installer | Automatic: the updater |
+| Mobile app | App bundle | App Store, Google Play | The store | Automatic: the store |
 
 ### Fix a bad change
 
@@ -177,6 +201,7 @@ The loop is the same. Only these settings are different:
 | Reviewer | You read the PR, then say "merge" | A teammate approves on the server |
 | Branch protection on `main` | PR + CI must pass | PR + CI + 1 approval |
 | Issues | For work that you will not do now | For all planned work |
+| Release build | A clean clone on your machine | CI, on a tag push |
 
 Set up each repo one time: branch protection on `main`, only squash merge, and "delete the branch after the merge".
 When a teammate joins, change only the branch protection: add 1 approval.
@@ -201,7 +226,7 @@ CI minutes are free for public repos. For private repos they are limited, and a 
   The git server type is not in the environment: a URL such as `git.example.com` does not show it. So write it in the `Git server:` line.
 - **Write positive instructions.** "Commit on a branch" works better than "Do not commit on `main`".
 - **Remove no-ops.** If the agent does a thing without the rule, delete the rule.
-- For a new project, copy `project/AGENTS.md`, fill in the `<...>` parts, and delete the parts that do not apply.
+- When a project starts to use these principles (a new project, or an existing one, also one that is not in git yet), copy `project/AGENTS.md`, fill in the `<...>` parts, and delete the parts that do not apply. Fill in the Release section before other work.
 
 ## Git commands and when to use them
 
