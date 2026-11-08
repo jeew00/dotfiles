@@ -23,8 +23,13 @@ Scope: <pointer to the brief>. If a request is out of scope, say so before you s
 - Secrets live only in `.env`. Add each new variable name to `.env.example`.
 - Code that runs on user machines contains no secrets.
 - Private data: <git-ignored folder>. Large files: <storage>, and git keeps the URL and the hash.
-- A release is a SemVer tag `vX.Y.Z` on `main`, built from the tag on a clean machine. Each release gets a new number.
 - Undo a change on `main` with `git revert`.
+
+## Release
+
+- Artifact: <...>. Channel: <...>. Update: <automatic | one command | manual download>, because <reason>.
+- `<task runner> release X.Y.Z` tags `vX.Y.Z` on `main`, builds from the tag <in a clean clone | in CI>, and publishes to the channel. Each release gets a new SemVer number.
+- Users install and update with the steps in the README "Install" section.
 
 ## Where things go
 
