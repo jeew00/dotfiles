@@ -17,7 +17,9 @@ If the project has no `AGENTS.md`, follow the rules in `~/dotfiles/principle/pro
 - When a new idea comes up during a task, say if it changes "done" (propose the new spec)
   or is a new task (offer to write the issue now, ship the current work, then start the
   issue in a new session).
-- When a task is done, tell me to start a new session (`/clear`), and name the next issue.
+- When a task is done, name the next issue and tell me how to continue:
+  - `/compact` if the next task changes the same code (a new session would read the same files again);
+  - `/clear` if the next task changes other code, or the session is very long.
   When the same task continues but the session is long, tell me to `/compact`.
 - On a branch, commit each finished step after the check passes.
 - Commit messages, PRs and issues do not name AI tools.
